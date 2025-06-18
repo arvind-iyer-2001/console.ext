@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  console-ext:
+    build: .
+    container_name: console-ext-app
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - CONSOLE_EXT_PHONE_NUMBER=${CONSOLE_EXT_PHONE_NUMBER:-+1234567890}
+      - CONSOLE_EXT_WEBHOOK_URL=${CONSOLE_EXT_WEBHOOK_URL:-https://your-webhook.com/notify}
+      - CONSOLE_EXT_ENABLE_TEXT=${CONSOLE_EXT_ENABLE_TEXT:-false}
+      - CONSOLE_EXT_ENABLE_CALL=${CONSOLE_EXT_ENABLE_CALL:-false}
+      - CONSOLE_EXT_RATE_LIMIT_MAX=${CONSOLE_EXT_RATE_LIMIT_MAX:-5}
+      - CONSOLE_EXT_DASHBOARD_PORT=${CONSOLE_EXT_DASHBOARD_PORT:-3000}
+    volumes:
+      - ./logs:/app/logs
+      - ./.env:/app/.env:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "const http = require('http'); const options = { host: 'localhost', port: 3000, path: '/api/stats', timeout: 2000 }; const req = http.request(options, (res) => { process.exit(res.statusCode === 200 ? 0 : 1); }); req.on('error', () => process.exit(1)); req.end();"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.console-ext.rule=Host(`console-ext.localhost`)"
+      - "traefik.http.services.console-ext.loadbalancer.server.port=3000"
+
+  # Optional: MongoDB for persistent storage
+  # mongodb:
+  #   image: mongo:7
+  #   container_name: console-ext-db
+  #   environment:
+  #     MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME:-admin}
+  #     MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-password}
+  #   volumes:
+  #     - mongodb_data:/data/db
+  #   ports:
+  #     - "27017:27017"
+  #   restart: unless-stopped
+
+  # Optional: Redis for caching and rate limiting
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: console-ext-redis
+  #   volumes:
+  #     - redis_data:/data
+  #   ports:
+  #     - "6379:6379"
+  #   restart: unless-stopped
+
+  # Optional: Nginx reverse proxy
+  # nginx:
+  #   image: nginx:alpine
+  #   container_name: console-ext-nginx
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - ./nginx.conf:/etc/nginx/nginx.conf:ro
+  #     - ./ssl:/etc/nginx/ssl:ro
+  #   depends_on:
+  #     - console-ext
+  #   restart: unless-stopped
+
+# volumes:
+#   mongodb_data:
+#   redis_data:
+
+networks:
+  default:
+    name: console-ext-network
