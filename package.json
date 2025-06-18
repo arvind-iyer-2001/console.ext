@@ -1,14 +1,31 @@
 {
   "name": "console-ext",
   "version": "1.0.0",
-  "description": "A logging and notification system that overrides the console object to include text and call notifications for critical errors",
+  "description": "A powerful logging and notification system that overrides the console object to provide real-time text and call notifications for critical errors",
   "main": "console-ext.js",
+  "types": "index.d.ts",
+  "bin": {
+    "console-ext": "./cli.js"
+  },
+  "files": [
+    "console-ext.js",
+    "config.js",
+    "dashboard-server.js",
+    "winston-integration.js",
+    "index.d.ts",
+    "cli.js",
+    "dashboard.html",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "start": "node example.js",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "dashboard": "node example-with-dashboard.js"
+    "dashboard": "node example-with-dashboard.js",
+    "prepublishOnly": "npm test",
+    "prepare": "npm run test"
   },
   "keywords": [
     "console",
@@ -18,10 +35,27 @@
     "sms",
     "call",
     "alerts",
-    "monitoring"
+    "monitoring",
+    "error-tracking",
+    "startup",
+    "production",
+    "webhook",
+    "dashboard",
+    "rate-limiting"
   ],
-  "author": "",
+  "author": {
+    "name": "Arvind Iyer",
+    "url": "https://github.com/arvind-iyer-2001"
+  },
   "license": "MIT",
+  "homepage": "https://github.com/arvind-iyer-2001/console.ext#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arvind-iyer-2001/console.ext.git"
+  },
+  "bugs": {
+    "url": "https://github.com/arvind-iyer-2001/console.ext/issues"
+  },
   "engines": {
     "node": ">=12.0.0"
   },

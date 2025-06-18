@@ -1,0 +1,39 @@
+# Development files
+tests/
+coverage/
+.nyc_output/
+*.test.js
+jest.config.js
+
+# Examples (not needed in package)
+example*.js
+
+# Development tools
+.github/
+.vscode/
+.idea/
+
+# Docker (not needed in npm package)
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Environment files
+.env
+.env.*
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Node modules (handled by package.json)
+node_modules/

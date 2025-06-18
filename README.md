@@ -19,8 +19,14 @@ A powerful logging and notification system designed for developers, particularly
 ## 📋 Installation
 
 ```bash
-git clone <repository-url>
-cd Console.ext
+npm install console-ext
+```
+
+### Development Installation
+
+```bash
+git clone https://github.com/arvind-iyer-2001/console.ext.git
+cd console.ext
 npm install
 ```
 
@@ -29,8 +35,8 @@ npm install
 ### Basic Usage
 
 ```javascript
-const ConsoleExt = require('./console-ext');
-const { createConfig } = require('./config');
+const ConsoleExt = require('console-ext');
+const { createConfig } = require('console-ext/config');
 
 // Configure Console.ext
 const config = createConfig('production', {
@@ -56,8 +62,8 @@ consoleExt.restore();
 ### With Dashboard
 
 ```javascript
-const ConsoleExt = require('./console-ext');
-const DashboardServer = require('./dashboard-server');
+const ConsoleExt = require('console-ext');
+const DashboardServer = require('console-ext/dashboard-server');
 
 const consoleExt = new ConsoleExt(config);
 const dashboard = new DashboardServer(consoleExt, 3000);
@@ -69,7 +75,7 @@ dashboard.start();
 ### With Winston Integration
 
 ```javascript
-const WinstonConsoleExt = require('./winston-integration');
+const WinstonConsoleExt = require('console-ext/winston-integration');
 
 const winstonConsoleExt = new WinstonConsoleExt({
     phoneNumber: '+1234567890',
@@ -86,7 +92,7 @@ logger.error('This will be logged and trigger notifications');
 ### Environment Presets
 
 ```javascript
-const { createConfig } = require('./config');
+const { createConfig } = require('console-ext/config');
 
 // Development (notifications disabled)
 const devConfig = createConfig('development');
@@ -183,6 +189,24 @@ for (let i = 1; i <= 10; i++) {
 // First 5 will send notifications, rest will be rate limited
 ```
 
+## 🚦 CLI Usage
+
+Console.ext comes with a built-in CLI for easy setup and testing:
+
+```bash
+# Initialize configuration
+npx console-ext init --phone +1234567890 --webhook https://your-webhook.com
+
+# Start dashboard
+npx console-ext dashboard --port 3000
+
+# Test notifications
+npx console-ext test --phone +1234567890 --dry-run
+
+# Show help
+npx console-ext help
+```
+
 ## 🚦 Running Examples
 
 ```bash
@@ -190,10 +214,10 @@ for (let i = 1; i <= 10; i++) {
 npm start
 
 # Example with dashboard
-node example-with-dashboard.js
+npm run dashboard
 
-# Winston integration example
-node winston-example.js
+# Run tests
+npm test
 ```
 
 ## 📁 File Structure
