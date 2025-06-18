@@ -1,0 +1,28 @@
+{
+  "name": "console-ext",
+  "version": "1.0.0",
+  "description": "A logging and notification system that overrides the console object to include text and call notifications for critical errors",
+  "main": "console-ext.js",
+  "scripts": {
+    "start": "node example.js",
+    "test": "echo \"No tests specified\" && exit 0"
+  },
+  "keywords": [
+    "console",
+    "logging",
+    "notifications",
+    "text",
+    "sms",
+    "call",
+    "alerts",
+    "monitoring"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=12.0.0"
+  },
+  "dependencies": {
+    "winston": "^3.17.0"
+  }
+}

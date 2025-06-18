@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Console.ext Dashboard</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            background: #ecf0f1;
+        }
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 6px;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .stat-label {
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+        .section {
+            padding: 20px;
+        }
+        .section h2 {
+            margin-top: 0;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .notification-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .notification-item {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            padding: 15px;
+            background: #fafafa;
+        }
+        .notification-item.critical {
+            border-left: 4px solid #e74c3c;
+        }
+        .notification-item.undelivered {
+            border-left: 4px solid #f39c12;
+            background: #fef9e7;
+        }
+        .timestamp {
+            font-size: 0.9em;
+            color: #7f8c8d;
+        }
+        .message {
+            margin: 10px 0;
+            font-family: monospace;
+            background: white;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #2980b9;
+        }
+        button.danger {
+            background: #e74c3c;
+        }
+        button.danger:hover {
+            background: #c0392b;
+        }
+        .config-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .config-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            flex: 1;
+        }
+        label {
+            min-width: 120px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Console.ext Dashboard</h1>
+            <p>Monitor and manage your notification system</p>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="sentCount">0</div>
+                <div class="stat-label">Sent Notifications</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="undeliveredCount">0</div>
+                <div class="stat-label">Rate Limited</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="criticalCount">0</div>
+                <div class="stat-label">Critical Errors</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="uptime">0m</div>
+                <div class="stat-label">Uptime</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Configuration</h2>
+            <div class="config-section">
+                <div class="config-row">
+                    <label>Phone Number:</label>
+                    <input type="tel" id="phoneNumber" placeholder="+1234567890">
+                </div>
+                <div class="config-row">
+                    <label>Webhook URL:</label>
+                    <input type="url" id="webhookUrl" placeholder="https://your-webhook.com/notify">
+                </div>
+                <div class="config-row">
+                    <label>Rate Limit (per min):</label>
+                    <input type="number" id="rateLimit" value="5" min="1" max="100">
+                </div>
+                <div class="config-row">
+                    <label>Enable Text:</label>
+                    <input type="checkbox" id="enableText">
+                </div>
+                <div class="config-row">
+                    <label>Enable Calls:</label>
+                    <input type="checkbox" id="enableCall">
+                </div>
+            </div>
+            <div class="controls">
+                <button onclick="updateConfig()">Update Configuration</button>
+                <button onclick="testNotification()">Test Notification</button>
+                <button class="danger" onclick="clearStats()">Clear Statistics</button>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Sent Notifications</h2>
+            <div class="notification-list" id="sentNotifications">
+                <p>No notifications sent yet.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Rate Limited Notifications</h2>
+            <div class="notification-list" id="undeliveredNotifications">
+                <p>No rate limited notifications.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let consoleExt = null;
+        let startTime = Date.now();
+
+        function initDashboard() {
+            if (window.consoleExtInstance) {
+                consoleExt = window.consoleExtInstance;
+                loadConfig();
+                updateStats();
+            }
+            updateUptime();
+            setInterval(updateStats, 5000);
+            setInterval(updateUptime, 1000);
+        }
+
+        function loadConfig() {
+            if (!consoleExt) return;
+            
+            document.getElementById('phoneNumber').value = consoleExt.config.phoneNumber || '';
+            document.getElementById('webhookUrl').value = consoleExt.config.webhookUrl || '';
+            document.getElementById('rateLimit').value = consoleExt.config.rateLimitMax || 5;
+            document.getElementById('enableText').checked = consoleExt.config.enableText || false;
+            document.getElementById('enableCall').checked = consoleExt.config.enableCall || false;
+        }
+
+        function updateConfig() {
+            if (!consoleExt) {
+                alert('Console.ext instance not found. Make sure it\'s initialized.');
+                return;
+            }
+
+            consoleExt.config.phoneNumber = document.getElementById('phoneNumber').value;
+            consoleExt.config.webhookUrl = document.getElementById('webhookUrl').value;
+            consoleExt.config.rateLimitMax = parseInt(document.getElementById('rateLimit').value);
+            consoleExt.config.enableText = document.getElementById('enableText').checked;
+            consoleExt.config.enableCall = document.getElementById('enableCall').checked;
+            
+            alert('Configuration updated successfully!');
+        }
+
+        function updateStats() {
+            if (!consoleExt) return;
+
+            const stats = consoleExt.getNotificationStats();
+            
+            document.getElementById('sentCount').textContent = stats.sent;
+            document.getElementById('undeliveredCount').textContent = stats.undelivered;
+            
+            const criticalCount = stats.sentNotifications.filter(n => n.type === 'critical').length;
+            document.getElementById('criticalCount').textContent = criticalCount;
+
+            renderNotifications('sentNotifications', stats.sentNotifications, false);
+            renderNotifications('undeliveredNotifications', stats.undeliveredNotifications, true);
+        }
+
+        function renderNotifications(containerId, notifications, isUndelivered) {
+            const container = document.getElementById(containerId);
+            
+            if (notifications.length === 0) {
+                container.innerHTML = `<p>No ${isUndelivered ? 'rate limited' : 'sent'} notifications.</p>`;
+                return;
+            }
+
+            container.innerHTML = notifications.map(notification => `
+                <div class="notification-item ${notification.type === 'critical' ? 'critical' : ''} ${isUndelivered ? 'undelivered' : ''}">
+                    <div class="timestamp">
+                        ${new Date(notification.timestamp || notification.blockedAt).toLocaleString()}
+                        ${isUndelivered ? `(Blocked: ${notification.reason})` : ''}
+                    </div>
+                    <div class="message">${notification.message}</div>
+                    <div style="font-size: 0.9em; color: #7f8c8d;">
+                        Type: ${notification.type} | ID: ${notification.id}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateUptime() {
+            const uptime = Math.floor((Date.now() - startTime) / 1000 / 60);
+            document.getElementById('uptime').textContent = uptime + 'm';
+        }
+
+        function testNotification() {
+            if (typeof console.text === 'function') {
+                console.text('Dashboard test notification at ' + new Date().toLocaleTimeString());
+                setTimeout(updateStats, 500);
+            } else {
+                alert('Console.ext is not properly initialized.');
+            }
+        }
+
+        function clearStats() {
+            if (consoleExt && confirm('Are you sure you want to clear all statistics?')) {
+                consoleExt.clearStats();
+                updateStats();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', initDashboard);
+    </script>
+</body>
+</html>
