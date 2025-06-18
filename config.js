@@ -44,7 +44,11 @@ const configPresets = {
 
 function createConfig(preset = 'default', overrides = {}) {
     const baseConfig = configPresets[preset] || configPresets.default;
-    return { ...baseConfig, ...overrides };
+    return { 
+        ...baseConfig, 
+        ...(overrides || {}),
+        criticalKeywords: [...(baseConfig.criticalKeywords || [])]
+    };
 }
 
 if (typeof module !== 'undefined' && module.exports) {

@@ -5,7 +5,10 @@
   "main": "console-ext.js",
   "scripts": {
     "start": "node example.js",
-    "test": "echo \"No tests specified\" && exit 0"
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "dashboard": "node example-with-dashboard.js"
   },
   "keywords": [
     "console",
@@ -24,5 +27,9 @@
   },
   "dependencies": {
     "winston": "^3.17.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^7.1.1"
   }
 }

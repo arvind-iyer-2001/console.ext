@@ -232,6 +232,7 @@ class ConsoleExt {
 
     restore() {
         Object.assign(console, this.originalConsole);
+        delete console.text;
     }
 }
 
