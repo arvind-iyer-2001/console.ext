@@ -26,6 +26,7 @@ describe('DashboardServer', () => {
     if (consoleExt) {
       consoleExt.restore();
     }
+    jest.restoreAllMocks();
   });
 
   describe('Dashboard Routes', () => {
@@ -122,6 +123,44 @@ describe('DashboardServer', () => {
       // Should not contain functions or complex objects
       expect(typeof config.phoneNumber).toBe('string');
       expect(typeof config.enableText).toBe('boolean');
+    });
+  });
+
+  describe('Error Handling', () => {
+    test('should handle missing dashboard.html file', async () => {
+      const fs = require('fs');
+      const originalReadFile = fs.readFile;
+      
+      fs.readFile = jest.fn((path, encoding, callback) => {
+        callback(new Error('File not found'), null);
+      });
+      
+      const response = await request(server).get('/');
+      
+      expect(response.status).toBe(500);
+      expect(response.text).toBe('Error loading dashboard');
+      
+      fs.readFile = originalReadFile;
+    });
+
+    test('should handle malformed JSON in config update', async () => {
+      const response = await request(server)
+        .post('/api/config')
+        .send('{invalid json')
+        .set('Content-Type', 'application/json');
+
+      expect(response.status).toBe(400);
+      expect(response.body).toEqual({ error: 'Invalid JSON' });
+    });
+  });
+
+  describe('Additional API Routes', () => {
+    test('should handle clear stats endpoint', async () => {
+      // This would require adding a clear stats endpoint to dashboard server
+      const response = await request(server).post('/api/clear-stats');
+      
+      // For now, expect 404 since endpoint doesn't exist
+      expect(response.status).toBe(404);
     });
   });
 });

@@ -142,11 +142,31 @@ describe('Configuration', () => {
       expect(config).toEqual(defaultConfig);
     });
 
+    test('should handle undefined overrides', () => {
+      const config = createConfig('default', undefined);
+      
+      expect(config).toEqual(defaultConfig);
+    });
+
     test('should preserve array references correctly', () => {
       const config = createConfig('default');
       
       expect(config.criticalKeywords).toEqual(defaultConfig.criticalKeywords);
       expect(config.criticalKeywords).not.toBe(defaultConfig.criticalKeywords); // Should be a copy
+    });
+
+    test('should handle config with no criticalKeywords', () => {
+      const config = createConfig('default', { criticalKeywords: undefined });
+      
+      expect(config.criticalKeywords).toEqual(defaultConfig.criticalKeywords);
+    });
+
+    test('should preserve custom criticalKeywords array', () => {
+      const customKeywords = ['custom', 'error'];
+      const config = createConfig('default', { criticalKeywords: customKeywords });
+      
+      expect(config.criticalKeywords).toEqual(customKeywords);
+      expect(config.criticalKeywords).not.toBe(customKeywords); // Should be a copy
     });
   });
 });

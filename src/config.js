@@ -44,10 +44,11 @@ const configPresets = {
 
 function createConfig(preset = 'default', overrides = {}) {
     const baseConfig = configPresets[preset] || configPresets.default;
+    const mergedOverrides = overrides || {};
     return { 
         ...baseConfig, 
-        ...(overrides || {}),
-        criticalKeywords: [...(baseConfig.criticalKeywords || [])]
+        ...mergedOverrides,
+        criticalKeywords: [...(mergedOverrides.criticalKeywords || baseConfig.criticalKeywords || [])]
     };
 }
 

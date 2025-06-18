@@ -200,6 +200,247 @@ describe('ConsoleExt', () => {
     });
   });
 
+  describe('Error Handling', () => {
+    test('should handle fetch errors in sendTextMessage', async () => {
+      global.fetch.mockRejectedValue(new Error('Network error'));
+      const originalError = consoleExt.originalConsole.error;
+      consoleExt.originalConsole.error = jest.fn();
+      
+      await consoleExt.sendTextMessage({
+        type: 'test',
+        message: 'test message',
+        timestamp: new Date().toISOString()
+      });
+      
+      expect(consoleExt.originalConsole.error).toHaveBeenCalledWith(
+        'Console.ext: Failed to send text notification:',
+        expect.any(Error)
+      );
+      
+      consoleExt.originalConsole.error = originalError;
+    });
+
+    test('should handle fetch errors in makeCall', async () => {
+      global.fetch.mockRejectedValue(new Error('Network error'));
+      const originalError = consoleExt.originalConsole.error;
+      consoleExt.originalConsole.error = jest.fn();
+      
+      await consoleExt.makeCall({
+        type: 'critical',
+        message: 'test message',
+        timestamp: new Date().toISOString()
+      });
+      
+      expect(consoleExt.originalConsole.error).toHaveBeenCalledWith(
+        'Console.ext: Failed to make call notification:',
+        expect.any(Error)
+      );
+      
+      consoleExt.originalConsole.error = originalError;
+    });
+
+    test('should handle fetch errors in sendWebhook', async () => {
+      global.fetch.mockRejectedValue(new Error('Network error'));
+      const originalError = consoleExt.originalConsole.error;
+      consoleExt.originalConsole.error = jest.fn();
+      
+      await consoleExt.sendWebhook({
+        type: 'test',
+        message: 'test message',
+        timestamp: new Date().toISOString()
+      });
+      
+      expect(consoleExt.originalConsole.error).toHaveBeenCalledWith(
+        'Console.ext: Failed to send webhook:',
+        expect.any(Error)
+      );
+      
+      consoleExt.originalConsole.error = originalError;
+    });
+
+    test('should handle fetch errors in sendToDataDog', async () => {
+      const dataDogConsoleExt = new ConsoleExt({
+        dataDogApiKey: 'test-key',
+        phoneNumber: '+1234567890'
+      });
+      
+      global.fetch.mockRejectedValue(new Error('DataDog error'));
+      const originalError = dataDogConsoleExt.originalConsole.error;
+      dataDogConsoleExt.originalConsole.error = jest.fn();
+      
+      await dataDogConsoleExt.sendToDataDog({
+        type: 'critical',
+        message: 'test message',
+        timestamp: new Date().toISOString()
+      });
+      
+      expect(dataDogConsoleExt.originalConsole.error).toHaveBeenCalledWith(
+        'Console.ext: Failed to send to DataDog:',
+        expect.any(Error)
+      );
+      
+      dataDogConsoleExt.originalConsole.error = originalError;
+      dataDogConsoleExt.restore();
+    });
+
+    test('should handle HTTP errors in sendTextMessage', async () => {
+      global.fetch.mockResolvedValue({
+        ok: false,
+        status: 500
+      });
+      
+      const originalError = consoleExt.originalConsole.error;
+      consoleExt.originalConsole.error = jest.fn();
+      
+      await consoleExt.sendTextMessage({
+        type: 'test',
+        message: 'test message',
+        timestamp: new Date().toISOString()
+      });
+      
+      expect(consoleExt.originalConsole.error).toHaveBeenCalled();
+      consoleExt.originalConsole.error = originalError;
+    });
+
+    test('should warn when webhook URL is missing for text notifications', async () => {
+      const noWebhookConsoleExt = new ConsoleExt({
+        phoneNumber: '+1234567890',
+        enableText: true
+      });
+      
+      const originalWarn = noWebhookConsoleExt.originalConsole.warn;
+      noWebhookConsoleExt.originalConsole.warn = jest.fn();
+      
+      await noWebhookConsoleExt.sendTextMessage({
+        type: 'test',
+        message: 'test'
+      });
+      
+      expect(noWebhookConsoleExt.originalConsole.warn).toHaveBeenCalledWith(
+        'Console.ext: No webhook URL configured for text notifications'
+      );
+      
+      noWebhookConsoleExt.originalConsole.warn = originalWarn;
+      noWebhookConsoleExt.restore();
+    });
+
+    test('should warn when webhook URL is missing for call notifications', async () => {
+      const noWebhookConsoleExt = new ConsoleExt({
+        phoneNumber: '+1234567890',
+        enableCall: true
+      });
+      
+      const originalWarn = noWebhookConsoleExt.originalConsole.warn;
+      noWebhookConsoleExt.originalConsole.warn = jest.fn();
+      
+      await noWebhookConsoleExt.makeCall({
+        type: 'critical',
+        message: 'test'
+      });
+      
+      expect(noWebhookConsoleExt.originalConsole.warn).toHaveBeenCalledWith(
+        'Console.ext: No webhook URL configured for call notifications'
+      );
+      
+      noWebhookConsoleExt.originalConsole.warn = originalWarn;
+      noWebhookConsoleExt.restore();
+    });
+  });
+
+  describe('DataDog Integration', () => {
+    test('should send to DataDog when API key is provided', async () => {
+      const dataDogConsoleExt = new ConsoleExt({
+        dataDogApiKey: 'test-api-key',
+        phoneNumber: '+1234567890'
+      });
+      
+      global.fetch.mockResolvedValue({ ok: true });
+      
+      await dataDogConsoleExt.sendToDataDog({
+        type: 'critical',
+        message: 'test error',
+        timestamp: '2024-01-01T00:00:00.000Z'
+      });
+      
+      expect(global.fetch).toHaveBeenCalledWith(
+        'https://api.datadoghq.com/api/v1/logs',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'DD-API-KEY': 'test-api-key'
+          },
+          body: JSON.stringify({
+            message: 'test error',
+            level: 'error',
+            timestamp: '2024-01-01T00:00:00.000Z',
+            source: 'console-ext',
+            tags: ['type:critical', 'source:console-ext']
+          })
+        }
+      );
+      
+      dataDogConsoleExt.restore();
+    });
+
+    test('should not send to DataDog when API key is not provided', async () => {
+      await consoleExt.sendToDataDog({
+        type: 'info',
+        message: 'test'
+      });
+      
+      expect(global.fetch).not.toHaveBeenCalledWith(
+        expect.stringContaining('datadoghq.com'),
+        expect.any(Object)
+      );
+    });
+
+    test('should map critical type to error level in DataDog', async () => {
+      const dataDogConsoleExt = new ConsoleExt({
+        dataDogApiKey: 'test-key'
+      });
+      
+      await dataDogConsoleExt.sendToDataDog({
+        type: 'critical',
+        message: 'test'
+      });
+      
+      const lastCall = global.fetch.mock.calls[global.fetch.mock.calls.length - 1];
+      const body = JSON.parse(lastCall[1].body);
+      expect(body.level).toBe('error');
+      
+      dataDogConsoleExt.restore();
+    });
+
+    test('should map non-critical types to info level in DataDog', async () => {
+      const dataDogConsoleExt = new ConsoleExt({
+        dataDogApiKey: 'test-key'
+      });
+      
+      await dataDogConsoleExt.sendToDataDog({
+        type: 'text',
+        message: 'test'
+      });
+      
+      const lastCall = global.fetch.mock.calls[global.fetch.mock.calls.length - 1];
+      const body = JSON.parse(lastCall[1].body);
+      expect(body.level).toBe('info');
+      
+      dataDogConsoleExt.restore();
+    });
+  });
+
+  describe('Urgent Notifications', () => {
+    test('should make call for urgent notifications when enabled', async () => {
+      consoleExt.config.enableCall = true;
+      const makeCallSpy = jest.spyOn(consoleExt, 'makeCall');
+      
+      await consoleExt.sendNotification('urgent', 'Urgent issue');
+      
+      expect(makeCallSpy).toHaveBeenCalled();
+    });
+  });
+
   describe('Console Restoration', () => {
     test('should restore original console methods', () => {
       consoleExt.restore();
