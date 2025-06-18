@@ -1,6 +1,6 @@
-const ConsoleExt = require('./console-ext');
-const DashboardServer = require('./dashboard-server');
-const { createConfig } = require('./config');
+const ConsoleExt = require('../src/console-ext');
+const DashboardServer = require('../src/dashboard-server');
+const { createConfig } = require('../src/config');
 
 const config = createConfig('development', {
     phoneNumber: '+1234567890',

@@ -3,7 +3,7 @@ const {
   productionConfig, 
   developmentConfig, 
   createConfig 
-} = require('../config');
+} = require('../src/config');
 
 describe('Configuration', () => {
   describe('Default Configuration', () => {

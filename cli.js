@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-const ConsoleExt = require('./console-ext');
-const DashboardServer = require('./dashboard-server');
-const { createConfig } = require('./config');
+const ConsoleExt = require('./src/console-ext');
+const DashboardServer = require('./src/dashboard-server');
+const { createConfig } = require('./src/config');
 const fs = require('fs');
 const path = require('path');
 

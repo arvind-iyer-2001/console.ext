@@ -36,7 +36,7 @@ npm install
 
 ```javascript
 const ConsoleExt = require('console-ext');
-const { createConfig } = require('console-ext/config');
+const { createConfig } = require('console-ext/src/config');
 
 // Configure Console.ext
 const config = createConfig('production', {
@@ -63,7 +63,7 @@ consoleExt.restore();
 
 ```javascript
 const ConsoleExt = require('console-ext');
-const DashboardServer = require('console-ext/dashboard-server');
+const DashboardServer = require('console-ext/src/dashboard-server');
 
 const consoleExt = new ConsoleExt(config);
 const dashboard = new DashboardServer(consoleExt, 3000);
@@ -75,7 +75,7 @@ dashboard.start();
 ### With Winston Integration
 
 ```javascript
-const WinstonConsoleExt = require('console-ext/winston-integration');
+const WinstonConsoleExt = require('console-ext/src/winston-integration');
 
 const winstonConsoleExt = new WinstonConsoleExt({
     phoneNumber: '+1234567890',
@@ -92,7 +92,7 @@ logger.error('This will be logged and trigger notifications');
 ### Environment Presets
 
 ```javascript
-const { createConfig } = require('console-ext/config');
+const { createConfig } = require('console-ext/src/config');
 
 // Development (notifications disabled)
 const devConfig = createConfig('development');
@@ -224,13 +224,18 @@ npm test
 
 ```
 Console.ext/
-├── console-ext.js              # Main Console.ext class
-├── config.js                   # Configuration presets
-├── dashboard.html              # Web dashboard interface
-├── dashboard-server.js         # Dashboard HTTP server
-├── winston-integration.js      # Winston logger integration
-├── example.js                  # Basic usage example
-├── example-with-dashboard.js   # Dashboard example
+├── src/
+│   ├── console-ext.js          # Main Console.ext class
+│   ├── config.js               # Configuration presets
+│   ├── dashboard.html          # Web dashboard interface
+│   ├── dashboard-server.js     # Dashboard HTTP server
+│   └── winston-integration.js  # Winston logger integration
+├── examples/
+│   ├── example.js              # Basic usage example
+│   └── example-with-dashboard.js # Dashboard example
+├── tests/                      # Test suites
+├── cli.js                      # CLI tool
+├── index.d.ts                  # TypeScript definitions
 ├── package.json               # Dependencies and scripts
 ├── README.md                  # This file
 └── CLAUDE.md                  # Development instructions

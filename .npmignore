@@ -6,7 +6,7 @@ coverage/
 jest.config.js
 
 # Examples (not needed in package)
-example*.js
+examples/
 
 # Development tools
 .github/

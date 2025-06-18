@@ -1,6 +1,6 @@
 const request = require('supertest');
-const DashboardServer = require('../dashboard-server');
-const ConsoleExt = require('../console-ext');
+const DashboardServer = require('../src/dashboard-server');
+const ConsoleExt = require('../src/console-ext');
 
 describe('DashboardServer', () => {
   let consoleExt;

@@ -1,4 +1,4 @@
-const ConsoleExt = require('../console-ext');
+const ConsoleExt = require('../src/console-ext');
 
 describe('ConsoleExt', () => {
   let consoleExt;

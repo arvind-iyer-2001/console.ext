@@ -1,5 +1,5 @@
-const ConsoleExt = require('./console-ext');
-const { createConfig } = require('./config');
+const ConsoleExt = require('../src/console-ext');
+const { createConfig } = require('../src/config');
 
 const config = createConfig('development', {
     phoneNumber: '+1234567890',

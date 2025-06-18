@@ -2,28 +2,24 @@
   "name": "console-ext",
   "version": "1.0.0",
   "description": "A powerful logging and notification system that overrides the console object to provide real-time text and call notifications for critical errors",
-  "main": "console-ext.js",
+  "main": "src/console-ext.js",
   "types": "index.d.ts",
   "bin": {
     "console-ext": "./cli.js"
   },
   "files": [
-    "console-ext.js",
-    "config.js",
-    "dashboard-server.js",
-    "winston-integration.js",
+    "src/",
     "index.d.ts",
     "cli.js",
-    "dashboard.html",
     "README.md",
     "LICENSE"
   ],
   "scripts": {
-    "start": "node example.js",
+    "start": "node examples/example.js",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "dashboard": "node example-with-dashboard.js",
+    "dashboard": "node examples/example-with-dashboard.js",
     "prepublishOnly": "npm test",
     "prepare": "npm run test"
   },
